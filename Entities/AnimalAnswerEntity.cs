@@ -1,4 +1,6 @@
-﻿namespace TwentyQ.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TwentyQ.Entities;
 
 public class AnimalAnswerEntity
 {
@@ -7,6 +9,8 @@ public class AnimalAnswerEntity
     public int QuestionId { get; set; }
     public double Value { get; set; }
 
-    AnimalEntity? Animal { get; set; }
-    QuestionEntity? Question { get; set; }
+    [ForeignKey("AnimalId")]
+    public AnimalEntity? Animal { get; set; }
+    [ForeignKey("QuestionId")]
+    public QuestionEntity? Question { get; set; }
 }

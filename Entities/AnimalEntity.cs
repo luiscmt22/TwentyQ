@@ -5,5 +5,5 @@ public class AnimalEntity
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
 
-    List<AnimalAnswerEntity> Answers { get; set; } = [];
+    public List<AnimalAnswerEntity>? Answers { get; set; }
 }

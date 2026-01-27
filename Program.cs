@@ -1,4 +1,14 @@
 ﻿using TwentyQ.Core;
+using TwentyQ.Services;
+
+using Microsoft.Extensions.Configuration;
+
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json")
+    .Build();
+
+var context = new DbContextFactoryService(configuration).CreateDbContext();
 
 var userChoice = "";
 while (userChoice != "no")
@@ -11,7 +21,7 @@ while (userChoice != "no")
 
 void BetterNeuralNetworkGame()
 {
-    var betterGame = new BetterGame();
+    var betterGame = new BetterGame(context);
     betterGame.PlayBetterGame();
 }
 

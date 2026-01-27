@@ -1,33 +1,27 @@
-﻿using TwentyQ.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TwentyQ.Data;
+using TwentyQ.Entities;
 using TwentyQ.Models;
 
 namespace TwentyQ.Core;
 
 public class BetterGame
 {
-    public List<Question> questions = [
-        new Question { Text = "Does it fly?" },
-        new Question { Text = "Does it swim?" },
-        new Question { Text = "Is it a mammal?" },
-        new Question { Text = "Is it a bird?" },
 
-    ];
+    private readonly TwentyQContext _context;
+    public BetterGame(TwentyQContext context)
+    {
+        _context = context;
+    }
 
     public AnswerValue[] playerAnswers = [];
     public double[] answers = [];
 
     public NeuralNetwork network;  
 
-    public List<Animal> animals = [
-        new Animal { Name = "Penguin", featureValues = [0, 2, 0, 2] },
-        new Animal { Name = "Dog", featureValues = [0, 0, 2, 0] },
-        new Animal { Name = "Eagle", featureValues = [2, 0, 0, 2] },
-        new Animal { Name = "Shark", featureValues = [0, 2, 0, 0]},
-        new Animal { Name = "Cat", featureValues = [0, 0, 2, 0]},
-        new Animal { Name = "Whale", featureValues = [0, 2, 2, 0]},
-        new Animal { Name = "Bat", featureValues = [2, 0, 2, 0]},
-        new Animal { Name = "Salmon", featureValues = [0, 2, 0, 0]},
-    ];
+    public List<Animal> animals = [];
+    public List<QuestionEntity> questions = [];
+    public List<AnimalAnswerEntity> animalAnswers = [];
 
     //// Expected outputs: [Penguin?, Dog?, Eagle?, Shark?] This is the neuron's target output for each animal LEGACY
     //double[] isPenguin = [1, 0, 0, 0];
@@ -43,6 +37,10 @@ public class BetterGame
 
     public void PlayBetterGame()
     {
+        animals = LoadAnimals();
+        questions = LoadQuestions();
+        animalAnswers = LoadAnimalAnswers();
+
         CreateNetwork();
         TrainInitialNetwork();
         playerAnswers = GetPlayerAnswers();
@@ -106,6 +104,10 @@ public class BetterGame
             {
                 animal = new Animal();
                 animal.Name = animalName;
+                foreach (var ans in answers)
+                {
+                    
+                }
                 animal.featureValues = answers;
                 animals.Add(animal);
             }
@@ -120,7 +122,7 @@ public class BetterGame
 
         foreach (var animal in animals)
         {
-            double[] weights = [0.0, 0.0, 0.0, 0.0];
+            double[] weights = new double[questions.Count];
             double bias = 0.0;
             neurons.Add(new Neuron(weights, bias));
         }
@@ -129,7 +131,7 @@ public class BetterGame
 
     AnswerValue[] GetPlayerAnswers()
     {
-        return playerAnswers = [AnswerValue.Maybe, AnswerValue.Maybe, AnswerValue.Maybe, AnswerValue.Maybe];
+        return playerAnswers = new AnswerValue[questions.Count];
     }
 
     int FindBestGuess(double[] scores)
@@ -221,5 +223,39 @@ public class BetterGame
             }
         }
         return null;
+    }
+
+    List<Animal> LoadAnimals()
+    {
+        var entities = _context.Animals
+            .Include(a => a.Answers)
+            .ToList();
+
+        var result = new List<Animal>();
+
+        foreach (var entity in entities)
+        {
+            var animal = new Animal
+            {
+                Name = entity.Name,
+                featureValues = entity.Answers
+                    .OrderBy(a => a.QuestionId)  // ensure correct order!
+                    .Select(a => a.Value)
+                    .ToArray()
+            };
+            result.Add(animal);
+        }
+
+        return result;
+    }
+
+    List<QuestionEntity> LoadQuestions()
+    {
+        return _context.Questions.ToList();
+    }
+
+    List<AnimalAnswerEntity> LoadAnimalAnswers()
+    {
+        return _context.AnimalAnswers.ToList();
     }
 }
