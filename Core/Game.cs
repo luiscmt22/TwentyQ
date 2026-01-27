@@ -61,10 +61,10 @@ public class Game
 
     Animal[] GetAllAnimals()
     {
-        var dog = new Animal { Id = 1, Name = "Dog", features = [AnswerValue.No, AnswerValue.No, AnswerValue.Yes, AnswerValue.No] };
-        var eagle = new Animal { Id = 2, Name = "Eagle", features = [AnswerValue.Yes, AnswerValue.No, AnswerValue.No, AnswerValue.Yes] };
-        var shark = new Animal { Id = 3, Name = "Shark", features = [AnswerValue.No, AnswerValue.Yes, AnswerValue.No, AnswerValue.No] };
-        var penguin = new Animal { Id = 4, Name = "Penguin", features = [AnswerValue.No, AnswerValue.Yes, AnswerValue.No, AnswerValue.Yes] };
+        var dog = new Animal { Name = "Dog", features = [AnswerValue.No, AnswerValue.No, AnswerValue.Yes, AnswerValue.No] };
+        var eagle = new Animal { Name = "Eagle", features = [AnswerValue.Yes, AnswerValue.No, AnswerValue.No, AnswerValue.Yes] };
+        var shark = new Animal { Name = "Shark", features = [AnswerValue.No, AnswerValue.Yes, AnswerValue.No, AnswerValue.No] };
+        var penguin = new Animal { Name = "Penguin", features = [AnswerValue.No, AnswerValue.Yes, AnswerValue.No, AnswerValue.Yes] };
 
         Animal[] animalData = [dog, eagle, shark, penguin];
 

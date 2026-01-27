@@ -5,48 +5,46 @@ namespace TwentyQ.Core;
 
 public class BetterGame
 {
-    Question[] questions = Array.Empty<Question>();
+    public List<Question> questions = [
+        new Question { Text = "Does it fly?" },
+        new Question { Text = "Does it swim?" },
+        new Question { Text = "Is it a mammal?" },
+        new Question { Text = "Is it a bird?" },
+
+    ];
+
     public AnswerValue[] playerAnswers = [];
     public double[] answers = [];
 
     public NeuralNetwork network;  
 
     public List<Animal> animals = [
-        new Animal { Id = 0, Name = "Penguin", featureValues = [0, 2, 0, 2] },
-        new Animal { Id = 1, Name = "Dog", featureValues = [0, 0, 2, 0] },
-        new Animal { Id = 2, Name = "Eagle", featureValues = [2, 0, 0, 2] },
-        new Animal { Id = 3, Name = "Shark", featureValues = [0, 2, 0, 0]},
-        new Animal { Id = 4, Name = "Cat", featureValues = [0, 0, 2, 0]},
-        new Animal { Id = 5, Name = "Whale", featureValues = [0, 2, 2, 0]},
-        new Animal { Id = 6, Name = "Bat", featureValues = [2, 0, 2, 0]},
-        new Animal { Id = 7, Name = "Salmon", featureValues = [0, 2, 0, 0]},
+        new Animal { Name = "Penguin", featureValues = [0, 2, 0, 2] },
+        new Animal { Name = "Dog", featureValues = [0, 0, 2, 0] },
+        new Animal { Name = "Eagle", featureValues = [2, 0, 0, 2] },
+        new Animal { Name = "Shark", featureValues = [0, 2, 0, 0]},
+        new Animal { Name = "Cat", featureValues = [0, 0, 2, 0]},
+        new Animal { Name = "Whale", featureValues = [0, 2, 2, 0]},
+        new Animal { Name = "Bat", featureValues = [2, 0, 2, 0]},
+        new Animal { Name = "Salmon", featureValues = [0, 2, 0, 0]},
     ];
 
-    //// Expected outputs: [Penguin?, Dog?, Eagle?, Shark?] This is the neuron's target output for each animal
-    //double[] isPenguin = [1, 0, 0, 0, 0, 0, 0, 0, 0];
+    //// Expected outputs: [Penguin?, Dog?, Eagle?, Shark?] This is the neuron's target output for each animal LEGACY
+    //double[] isPenguin = [1, 0, 0, 0];
     //double[] isDog = [0, 1, 0, 0];
     //double[] isEagle = [0, 0, 1, 0];
     //double[] isShark = [0, 0, 0, 1];
-    //double[] isCat = [0, 0, 0, 0, 1];
-    //double[] isWhale = [0, 0, 0, 0, 0, 1];
-    //double[] isBat = [0, 0, 0, 0];
-    //double[] isSalmon = [0, 0, 0, 0];
 
-    //// Training data for each animal. This represents the answers to the questions for each animal
+    //// Training data for each animal. This represents the answers to the questions for each animal LEGACY
     //double[] penguin = [0, 2, 0, 2];
     //double[] dog = [0, 0, 2, 0];
     //double[] eagle = [2, 0, 0, 2];
     //double[] shark = [0, 2, 0, 0];
-    //double[] cat = [0, 0, 2, 0];
-    //double[] Whale = [0, 2, 2, 0];
-    //double[] Bat = [2, 0, 2, 0];
-    //double[] Salmon = [0, 2, 0, 0];
 
     public void PlayBetterGame()
     {
         CreateNetwork();
         TrainInitialNetwork();
-        questions = GetAllQuestions();
         playerAnswers = GetPlayerAnswers();
 
         Console.WriteLine("Welcome to the Better Twenty Questions!");
@@ -100,37 +98,33 @@ public class BetterGame
             Console.WriteLine("Oh no! I'll try to do better next time. Which animal were you thinking of?");
             var animalName = Console.ReadLine() ?? "Unknown";
             animal = GetAnimalbyName(animalName);
-            if (animal is not null)
+            if (animal is not null )
             {
                 network.Train(answers, GetExpectedOutput(animal), 0.1);
             }
+            else
+            {
+                animal = new Animal();
+                animal.Name = animalName;
+                animal.featureValues = answers;
+                animals.Add(animal);
+            }
+            foreach (var _animal in animals)
+            { Console.WriteLine(_animal.Name.ToString()); }
         }
-
     }
 
     void CreateNetwork()
     {
-        double[] weights = [0.0, 0.0, 0.0, 0.0];
-        double bias = 0.0;
         List<Neuron> neurons = new List<Neuron>();
 
         foreach (var animal in animals)
         {
+            double[] weights = [0.0, 0.0, 0.0, 0.0];
+            double bias = 0.0;
             neurons.Add(new Neuron(weights, bias));
         }
         network = new NeuralNetwork(neurons);
-    }
-
-    Question[] GetAllQuestions()
-    {
-        var q1 = new Question { Text = "Does it fly?" };
-        var q2 = new Question { Text = "Does it swim?" };
-        var q3 = new Question { Text = "Is it a mammal?" };
-        var q4 = new Question { Text = "Is it a bird?" };
-
-        Question[] questionData = [q1, q2, q3, q4];
-
-        return questionData;
     }
 
     AnswerValue[] GetPlayerAnswers()
@@ -167,7 +161,7 @@ public class BetterGame
                 if (a.Name.Equals(animal.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     double[] output = new double[animals.Count];
-                    output[a.Id] = 1.0;
+                    output[animals.IndexOf(a)] = 1.0;
                     return output;
                 }
             }
@@ -180,7 +174,7 @@ public class BetterGame
     {
         var learningRate = 0.1;
         // Train
-        for (int i = 0; i <= 10000; i++)
+        for (int i = 0; i <= 1000; i++)
         {
             foreach (var animal in animals)
             {

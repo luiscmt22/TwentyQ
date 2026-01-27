@@ -12,9 +12,9 @@ public class NeuralNetwork
     public double[] Compute(double[] inputs)
     {
         var outputs = new double[Neurons.Count];
+        var i = 0;
         foreach (var neuron in Neurons)
         {
-            var i = 0;
             outputs[i] = neuron.Compute(inputs);
             i++;
         }
@@ -23,9 +23,9 @@ public class NeuralNetwork
 
     public void Train(double[] inputs, double[] expectedOutputs, double learningRate)
     {
+        var i = 0;
         foreach (var neuron in Neurons)
         {
-            var i = 0;
             neuron.Train(inputs, expectedOutputs[i], learningRate);
             i++;
         }

@@ -3,11 +3,16 @@
 namespace TwentyQ.Models;
 public class Animal
 {
-    public int Id { get; set; }
+    private static int _nextId = 0;  // Shared counter
+    public int Id { get; }
     public string Name { get; set; } = string.Empty;
     public AnswerValue[] features {  get; set; } = []; // = Array.Empty<AnswerValue>(); kept for backward compatibility
     public double[] featureValues { get; set; } = [];
 
+    public Animal()
+    {
+        Id = _nextId++;
+    }
 
     void convertFeaturesToValues()
     {

@@ -1,6 +1,13 @@
 ﻿using TwentyQ.Core;
 
-BetterNeuralNetworkGame();
+var userChoice = "";
+while (userChoice != "no")
+{
+    BetterNeuralNetworkGame();
+    Console.WriteLine("Do you want to play again?");
+    userChoice = Console.ReadLine()?.ToLower() ?? "no";
+}
+
 
 void BetterNeuralNetworkGame()
 {
