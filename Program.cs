@@ -24,8 +24,8 @@ void BetterNeuralNetworkGame()
     var betterGame = new BetterGame(context);
     betterGame.PlayBetterGame();
 }
-
-void NeuralNetworkGame()
+/* This was a previous version that only used a single layer of neurons */
+/*void NeuralNetworkGame()
 {
     // Create 4 neurons (one per animal), all starting with zero weights
     var network = new NeuralNetwork([
@@ -70,6 +70,7 @@ void NeuralNetworkGame()
         Console.WriteLine($"{animal}: P={scores[0]:F2} D={scores[1]:F2} E={scores[2]:F2} S={scores[3]:F2}");
     }
 }
+*/
 
 void SingleNeuronGame()
 {

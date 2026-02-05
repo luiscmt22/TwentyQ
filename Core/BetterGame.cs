@@ -46,6 +46,11 @@ public class BetterGame
         playerAnswers = GetPlayerAnswers();
 
         Console.WriteLine("Welcome to the Better Twenty Questions!");
+        Console.WriteLine("Think of an animal from the following list:");
+        foreach (var _animal in animals)
+        {
+            Console.WriteLine($"- {_animal.Name}");
+        }
 
         foreach (var questionText in questions)
         {
@@ -89,25 +94,27 @@ public class BetterGame
         if (playerResponse?.ToLower() == "yes")
         {
             Console.WriteLine("Yay! I guessed it right!");
-            network.Train(answers, GetExpectedOutput(animal), 0.1);
+            
+            var expected = GetExpectedOutput(animal);
+            network.Train(answers, expected, 0.1);
         }
         else
         {
             Console.WriteLine("Oh no! I'll try to do better next time. Which animal were you thinking of?");
+            
             var animalName = Console.ReadLine() ?? "Unknown";
+            Console.WriteLine();
             animal = GetAnimalbyName(animalName);
+            
             if (animal is not null )
             {
-                network.Train(answers, GetExpectedOutput(animal), 0.1);
+                var expected = GetExpectedOutput(animal);
+                network.Train(answers, expected, 0.1);
             }
             else
             {
                 animal = new Animal();
-                animal.Name = animalName;
-                foreach (var ans in answers)
-                {
-                    
-                }
+                animal.Name = char.ToUpper(animalName[0]) + animalName[1..].ToLower();
                 animal.featureValues = answers;
                 animals.Add(animal);
             }
@@ -118,15 +125,38 @@ public class BetterGame
 
     void CreateNetwork()
     {
-        List<Neuron> neurons = new List<Neuron>();
+        int inputSize = questions.Count;      // 6 inputs (questions)
+        int hiddenSize = 6;                   // 6 hidden neurons (between input and output)
+        int outputSize = animals.Count;       // 8 outputs (animals)
 
-        foreach (var animal in animals)
+        var hiddenLayer = new List<Neuron>();
+        var outputLayer = new List<Neuron>();
+
+        var _random = new Random();
+        // Create hidden layer neurons
+        foreach (var _ in Enumerable.Range(0, hiddenSize))
         {
-            double[] weights = new double[questions.Count];
-            double bias = 0.0;
-            neurons.Add(new Neuron(weights, bias));
+            var weights = new double[inputSize]; // Each neuron needs weights for each input
+            for (int i = 0; i < inputSize; i++)
+            {
+                weights[i] = _random.NextDouble();
+            }
+            hiddenLayer.Add(new Neuron(weights, 0.0));
         }
-        network = new NeuralNetwork(neurons);
+
+        // Create output layer neurons
+        foreach (var _ in Enumerable.Range(0, outputSize))
+        {
+            var weights = new double[hiddenSize]; // Each neuron needs weights for each hidden neuron
+            for (int i = 0; i < hiddenSize; i++)
+            {
+                weights[i] = _random.NextDouble();
+            }
+            outputLayer.Add(new Neuron(weights, 0.0));
+        }
+
+        var layers = new List<List<Neuron>> { hiddenLayer, outputLayer };
+        network = new NeuralNetwork(layers);
     }
 
     AnswerValue[] GetPlayerAnswers()
@@ -168,15 +198,18 @@ public class BetterGame
                 }
             }
         }
-        return [0.0, 0.0, 0.0, 0.0];
+        return new double[questions.Count];
 
     }
 
     void TrainInitialNetwork()
     {
+        var expectedError = 0.05;
+        var iterations = 100000;
         var learningRate = 0.1;
+        var error = double.MaxValue;
         // Train
-        for (int i = 0; i <= 1000; i++)
+        for (int i = 0; error > expectedError; i++)
         {
             foreach (var animal in animals)
             {
@@ -185,7 +218,7 @@ public class BetterGame
 
             if (i % 100 == 0)
             {
-                var error = CalculateTotalError();
+                error = CalculateTotalError();
                 Console.WriteLine($"Iteration {i}: Error = {error:F4}");
             }
         }
